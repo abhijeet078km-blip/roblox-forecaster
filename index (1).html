@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roblox revenue forecaster</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f5;--panel:#fff;--ink:#0d1b2a;--mute:#5b6b7e;--line:#dbe2ea;--hero:#0b2545;--heroink:#f4f7fb;--down:#d1495b;--base:#0a8f87;--up:#4f5bd5;--inp:#f5f7fa;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--panel:#121c2e;--ink:#e7edf5;--mute:#8fa1b8;--line:#24324a;--hero:#16294a;--down:#ff7a8a;--base:#3ed1c4;--up:#8c9bff;--inp:#0e1726}}
+:root[data-theme="dark"]{--bg:#0b1220;--panel:#121c2e;--ink:#e7edf5;--mute:#8fa1b8;--line:#24324a;--hero:#16294a;--down:#ff7a8a;--base:#3ed1c4;--up:#8c9bff;--inp:#0e1726}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 Figtree,system-ui,sans-serif}
+h1,h2,h3,.num,.big{font-family:'Bricolage Grotesque',Figtree,system-ui,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 56px}
+.hero{background:var(--hero);color:var(--heroink);border-radius:0 0 22px 22px;padding:30px 0 26px;margin-bottom:22px}
+.hero .wrap{padding-bottom:0}
+h1{font-size:clamp(26px,4.4vw,38px);line-height:1.1;margin:0 0 4px;font-weight:800}
+.hero p{margin:0 0 18px;opacity:.78;max-width:62ch}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
+.pills button{min-width:42px;padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:transparent;color:inherit;font:600 14px Figtree,sans-serif;cursor:pointer}
+.pills button[aria-pressed=true]{background:#fff;color:#0b2545;border-color:#fff}
+.hl{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-end}
+.big{font-size:clamp(44px,9vw,76px);font-weight:800;line-height:1;letter-spacing:-.02em}
+.hl .cap{opacity:.8;margin-top:6px}
+.rng{flex:1;min-width:260px;max-width:520px}
+.trk{position:relative;height:6px;border-radius:6px;background:rgba(255,255,255,.2);margin:14px 8px 10px}
+.trk i{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid var(--hero)}
+.lbl{display:flex;justify-content:space-between;font-size:13px;gap:8px}
+.lbl b{display:block;font:700 17px 'Bricolage Grotesque',sans-serif}
+.lbl span{opacity:.75}
+.grid{display:grid;grid-template-columns:350px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+details.panel{padding:0}
+summary{cursor:pointer;padding:14px 18px;font:700 16px 'Bricolage Grotesque',sans-serif;list-style:none;display:flex;justify-content:space-between}
+summary::after{content:'+';color:var(--mute);font-weight:500}
+details[open]>summary::after{content:'−'}
+summary:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--base);outline-offset:2px}
+.body{padding:0 18px 16px}
+.f{margin-top:12px}
+.f label{display:block;font-weight:600;font-size:13px;margin-bottom:4px}
+.f small{display:block;color:var(--mute);font-size:12px;margin-top:3px}
+input[type=number]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--inp);color:var(--ink);font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sc{display:grid;grid-template-columns:64px repeat(3,1fr);gap:6px;align-items:center;margin-top:8px}
+.sc .h{font-size:11.5px;color:var(--mute);line-height:1.2}
+.sc b{font-weight:600}
+.pre{display:flex;gap:6px;margin-top:6px}
+.pre button,.seg button{padding:5px 10px;border-radius:7px;border:1px solid var(--line);background:var(--inp);color:var(--ink);font:600 12.5px Figtree,sans-serif;cursor:pointer}
+.reset{margin:4px 0 0;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--mute);font:600 13px Figtree,sans-serif;cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:640px){.cards{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--c);border-radius:14px;padding:14px 16px;margin:0}
+.card h3{margin:0;color:var(--c);font-size:16px}
+.card .num{font-size:32px;font-weight:800;line-height:1.15;margin:2px 0}
+.card .s{font-size:12.5px;color:var(--mute);margin-bottom:8px}
+dl{margin:0}dl div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:13.5px}
+dt{color:var(--mute)}dd{margin:0;font-weight:600;text-align:right}
+h2{font-size:18px;margin:0 0 10px}
+.ro{margin-top:8px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 18px}
+.seg{display:flex;gap:6px;margin-bottom:10px}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:640px;font-size:13.5px}
+th,td{padding:8px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12.5px;color:var(--mute);font-weight:600}
+tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+tr.off td{opacity:.4}
+.note{color:var(--mute);font-size:13px}
+.vd{border-left:6px solid var(--c);background:var(--inp);border-radius:10px;padding:12px 16px;margin-bottom:16px}.vt{font:800 26px 'Bricolage Grotesque',sans-serif;color:var(--c);line-height:1.2}.vd p{margin:2px 0 8px}.vd .note{margin:8px 0 0}.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}@media(max-width:640px){.pg{grid-template-columns:1fr}}.pt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}.pt .num{font-size:22px;font-weight:800;line-height:1.2}.pt span{display:block;font-size:12.5px;color:var(--mute)}.pt .yr{color:var(--ink);font-weight:600;margin:2px 0}
+.warn{background:#fff4d6;color:#5c4300;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:13.5px}
+</style></head>
+<body>
+<header class="hero"><div class="wrap">
+ <h1>Roblox revenue forecaster</h1>
+ <p>Project a game’s earnings from its player count and spending, with a downside, base and upside case, for any period up to 12 months.</p>
+ <div class="pills" id="pills" role="group" aria-label="Months to project"></div>
+ <div class="hl"><div><div class="big" id="hb">$0</div><div class="cap" id="hc"></div></div><div class="rng" id="rng"></div></div>
+</div></header>
+<main class="wrap"><div class="grid">
+<aside id="inputs"></aside>
+<section aria-live="polite">
+ <div id="warn"></div>
+ <div class="cards" id="cards"></div>
+ <div class="panel"><h2>Cumulative profit</h2><div id="chart"></div><div class="ro" id="readout"></div></div>
+ <div class="panel" id="deal"></div>
+ <div class="panel"><h2>Month by month</h2><div class="seg" id="seg"></div><div class="scroll"><table id="tbl"></table></div></div>
+ <details class="panel"><summary>How this is calculated</summary><div class="body note">
+  <p><b>Players:</b> daily players in each month = today’s players × (floor + (1 − floor) × (1 − monthly drop)<sup>month − 0.5</sup>). The floor is the share of today’s audience that stays long term.</p>
+  <p><b>Spending per player:</b> today’s Robux ÷ today’s players, changed by the monthly trend you set. Robux spent per month = players × spend per player × 30.</p>
+  <p><b>Developer earnings:</b> Robux spent × (1 − Roblox cut) × (1 + Premium payouts) × USD per Robux × (1 − payment fees).</p>
+  <p><b>Profit:</b> developer earnings − partner splits − ad spend − fixed costs. After-tax and stake figures come from this profit.</p>
+  <p>This is a scenario model, not a prediction. Real results depend on updates, events, trends, thumbnails and ad spend. Check the current DevEx rate on Roblox. Premium payouts and any ad revenue are not included in Robux spent, so add them yourself if you know them.</p>
+ </div></details>
+</section></div></main>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>Math.round(Math.abs(n)).toLocaleString('en-US');
+const usd=n=>(Math.round(n)<0?'−$':'$')+fmt(n);
+const SCN=[{k:'down',name:'Downside',c:'var(--down)'},{k:'base',name:'Base',c:'var(--base)'},{k:'up',name:'Upside',c:'var(--up)'}];
+const DEF={dau:1970000,rob:720000,rate:0.0038,cut:30,prem:0,fee:0,split:0,ads:0,fixed:0,tax:0,downD:50,downF:3,downA:-5,baseD:30,baseF:8,baseA:0,upD:12,upF:20,upA:4,val:400000,stake:50};
+const GROUPS=[
+ {t:'Game numbers',open:1,f:[['dau','Daily active users','Analytics → Engagement, latest daily value',1000],['rob','Robux spent per day','Analytics → Revenue, recent daily value',1000]],extra:'arp'},
+ {t:'Payout and fees',open:1,f:[['rate','USD per Robux','DevEx rate, check the current one',0.0001],['cut','Roblox cut %','30 on passes and products',1],['prem','Premium payouts %','Extra on top of Robux earnings',1],['fee','Payment fees %','DevEx and processor fees',0.5]],pre:1},
+ {t:'Costs and splits',open:0,f:[['split','Partner revenue split %','Share paid to other owners or devs',1],['ads','Ad spend per month, USD','',100],['fixed','Other monthly costs, USD','Team, tools, contractors',100],['tax','Tax rate %','Applied to profit',1]]},
+ {t:'Scenarios',open:1,sc:1},
+ {t:'Buying a stake',open:1,f:[['val','Valuation for 100%, USD','What the owner is asking',1000],['stake','Stake you would own %','',1]],extra:'price'}
+];
+let N=6,view='base',hov=null,store={};
+try{store=JSON.parse(localStorage.getItem('rrf2')||'{}')}catch(e){}
+if(store.N)N=store.N;
+function build(){
+ let h='';
+ GROUPS.forEach(g=>{
+  h+=`<details class="panel"${g.open?' open':''}><summary>${g.t}</summary><div class="body">`;
+  if(g.sc){
+   h+=`<div class="sc"><span></span><span class="h">Player drop per month %</span><span class="h">Long-run floor %</span><span class="h">Spend per player trend %/mo</span></div>`;
+   SCN.forEach(s=>{h+=`<div class="sc"><b style="color:${s.c}">${s.name}</b>`+['D','F','A'].map(x=>`<input type="number" id="${s.k+x}" step="1" aria-label="${s.name} ${x}">`).join('')+'</div>'});
+   h+=`<div class="f"><small>Drop: how much of the audience is lost each month. Floor: the share of today’s players that stays long term. Trend: whether each player spends more or less over time.</small></div>`;
+  } else {
+   g.f.forEach(([id,l,hint,st])=>{h+=`<div class="f"><label for="${id}">${l}</label><input type="number" id="${id}" step="${st}" min="0">${hint?`<small>${hint}</small>`:''}</div>`});
+   if(g.pre)h+=`<div class="pre"><button data-r="0.0038">0.0038</button><button data-r="0.0035">0.0035</button></div>`;
+   if(g.extra==='arp')h+=`<div class="ro" id="arp"></div>`;
+   if(g.extra==='price')h+=`<div class="ro" id="price"></div>`;
+  }
+  h+='</div></details>';
+ });
+ h+='<button class="reset" id="reset">Reset all numbers</button>';
+ $('#inputs').innerHTML=h;
+ Object.keys(DEF).forEach(k=>{$('#'+k).value=store[k]!==undefined?store[k]:DEF[k]});
+ $('#pills').innerHTML=Array.from({length:12},(_,i)=>`<button data-m="${i+1}">${i+1}</button>`).join('');
+ $('#seg').innerHTML=SCN.map(s=>`<button data-v="${s.k}">${s.name}</button>`).join('');
+}
+function model(){
+ const p={};Object.keys(DEF).forEach(k=>{let x=parseFloat($('#'+k).value);p[k]=isNaN(x)?0:x});
+ ['cut','fee','split','tax','prem','stake'].forEach(k=>p[k]=Math.min(100,Math.max(0,p[k])));
+ ['downD','baseD','upD'].forEach(k=>p[k]=Math.min(99,Math.max(0,p[k])));
+ ['downF','baseF','upF'].forEach(k=>p[k]=Math.min(100,Math.max(0,p[k])));
+ const arp0=p.dau>0?p.rob/p.dau:0,sh=p.stake/100,price=p.val*sh;
+ const out=SCN.map(s=>{
+  const d=p[s.k+'D']/100,f=p[s.k+'F']/100,a=p[s.k+'A']/100;let cum=0,cd=0,cr=0,rows=[];
+  for(let m=1;m<=12;m++){
+   const dau=p.dau*(f+(1-f)*Math.pow(1-d,m-.5)),arp=arp0*Math.pow(1+a,m-.5);
+   const rb=dau*arp*30,dev=rb*(1-p.cut/100)*(1+p.prem/100)*p.rate*(1-p.fee/100);
+   const sp=dev*p.split/100,cost=p.ads+p.fixed,profit=dev-sp-cost;
+   cum+=profit;cd+=dev;cr+=rb;
+   rows.push({m,dau,arp,rb,dev,sp,cost,profit,cum,cd,cr});
+  }
+  const pay=price>0?(rows.find(r=>r.cum*sh>=price)||{}).m:undefined;
+  return{...s,rows,pay};
+ });
+ return{p,arp0,sh,price,out};
+}
+function chart(M){
+ const W=720,H=280,L=62,B=28,T=12,R=14,N0=N;
+ const all=M.out.flatMap(s=>s.rows.slice(0,N0).map(r=>r.cum));
+ const hi=Math.max(1,...all),lo=Math.min(0,...all),rg=hi-lo||1;
+ const X=m=>L+(N0===1?(W-L-R)/2:(m-1)*(W-L-R)/(N0-1)),Y=v=>H-B-((v-lo)/rg)*(H-B-T);
+ const k=v=>Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':Math.abs(v)>=1e3?Math.round(v/1e3)+'K':Math.round(v);
+ let g='';
+ for(let i=0;i<=4;i++){const v=lo+rg*i/4,y=Y(v);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-8}" y="${y+4}" text-anchor="end" font-size="11" fill="var(--mute)">${v<0?'−':''}$${k(Math.abs(v))}</text>`}
+ for(let m=1;m<=N0;m++)g+=`<text x="${X(m)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--mute)">${m}</text>`;
+ const dn=M.out[0].rows.slice(0,N0),up=M.out[2].rows.slice(0,N0);
+ g+=`<polygon fill="var(--base)" opacity=".12" points="${up.map(r=>X(r.m)+','+Y(r.cum)).join(' ')} ${dn.slice().reverse().map(r=>X(r.m)+','+Y(r.cum)).join(' ')}"/>`;
+ const h=Math.min(hov||N0,N0);
+ g+=`<line x1="${X(h)}" x2="${X(h)}" y1="${T}" y2="${H-B}" stroke="var(--mute)" stroke-dasharray="4 4"/>`;
+ M.out.forEach(s=>{const r=s.rows.slice(0,N0);g+=`<polyline fill="none" stroke="${s.c}" stroke-width="2.6" points="${r.map(x=>X(x.m)+','+Y(x.cum)).join(' ')}"/>`+`<circle cx="${X(h)}" cy="${Y(s.rows[h-1].cum)}" r="5" fill="${s.c}"/>`});
+ $('#chart').innerHTML=`<svg id="svg" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cumulative profit by scenario, months on the horizontal axis">${g}</svg>`;
+ $('#readout').innerHTML=`<b>Month ${h}:</b>`+M.out.map(s=>`<span style="color:${s.c}">${s.name} <b>${usd(s.rows[h-1].cum)}</b></span>`).join('');
+ $('#svg').addEventListener('pointermove',e=>{const b=e.currentTarget.getBoundingClientRect(),x=(e.clientX-b.left)/b.width*W;const m=N0===1?1:Math.min(N0,Math.max(1,Math.round((x-L)/((W-L-R)/(N0-1))+1)));if(m!==hov){hov=m;chart(M)}});
+}
+function verdict(M){
+ const r=M.out.map(s=>{const sh12=s.rows[N-1].cum*M.sh;return{sh12,roi:sh12/M.price-1}});
+ const W=N+(N>1?' months':' month');
+ const [d,b,u]=r,ev=.25*d.sh12+.5*b.sh12+.25*u.sh12,evr=Math.round((ev/M.price-1)*100);
+ let t,c,m;
+ if(d.roi>=0){t='Worth it';c='var(--base)';m='Even the downside gets your money back within '+W+'.'}
+ else if(b.roi>=0){t='Worth it if the game holds up';c='#d08a00';m='The base case gets your money back, but the downside loses '+Math.round(-d.roi*100)+'% of it.'}
+ else if(u.roi>=0){t='Risky at this price';c='var(--down)';m='Only the upside case gets your money back within '+W+'.'}
+ else{t='Not worth it at this price';c='var(--down)';m='Even the upside case does not get your money back within '+W+'.'}
+ const pos=x=>Math.max(0,x),safe=pos(d.sh12/M.sh),walk=pos(b.sh12/M.sh),reas=Math.max(safe,Math.min(walk,pos(ev/M.sh)/1.5)),ask=M.p.val;
+ const tile=(n,v,s,c)=>`<div class="pt"><b style="color:${c}">${n}</b><div class="num">${v>0?usd(v):'No price works'}</div><div class="yr">${v>0?usd(v*M.sh)+' for your '+M.p.stake+'%':''}</div><span>${s}</span></div>`;
+ const cmp=ask<=safe?'The owner’s ask is at or below the safe price.':ask<=walk?'The owner’s ask is above the safe price but within the walk-away price.':'The owner’s ask of '+usd(ask)+(walk>0?' is '+Math.round((ask/walk-1)*100)+'% above the walk-away price.':' is above any price these numbers support.');
+ return `<div class="vd" style="--c:${c}"><div class="vt">${t}</div><p>${m}</p><h2 style="font-size:16px;margin:12px 0 0">Price guide, as a valuation for 100%</h2><div class="pg">${tile('Safe price',safe,'You get your money back within '+W+' even in the downside case','var(--base)')}${tile('Reasonable price',reas,'The expected case returns your money plus about 50% over '+W,'#d08a00')}${tile('Walk-away price',walk,'Above this, even the base case does not pay back in '+W,'var(--down)')}</div><p style="margin:0"><b>${cmp}</b> Expected return over ${W} at the ask: ${evr}% (25% downside, 50% base, 25% upside).</p><p class="note">This counts only the first ${W} of profit before tax. It does not value the game after that, or risks like content takedowns and Roblox algorithm changes.</p></div>`;
+}
+function draw(){
+ const M=model(),{p,out}=M,at=s=>s.rows[N-1];
+ $('#warn').innerHTML=p.dau<=0||p.rob<=0?'<div class="warn">Enter daily active users and Robux spent per day to see a forecast.</div>':'';
+ document.querySelectorAll('#pills button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.m===N));
+ document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===view));
+ const [d,b,u]=out.map(at),span=Math.max(1,u.cum-d.cum),pos=Math.min(100,Math.max(0,(b.cum-d.cum)/span*100));
+ $('#hb').textContent=usd(b.cum);
+ $('#hc').textContent=`Base case profit over ${N} month${N>1?'s':''}`;
+ $('#rng').innerHTML=`<div class="trk"><i style="left:0;background:var(--down)"></i><i style="left:${pos}%;background:var(--base)"></i><i style="left:100%;background:var(--up)"></i></div><div class="lbl"><div><b>${usd(d.cum)}</b><span>Downside</span></div><div style="text-align:right"><b>${usd(u.cum)}</b><span>Upside</span></div></div>`;
+ $('#arp').innerHTML=`<span>Robux per player per day: <b>${M.arp0.toFixed(3)}</b></span>`;
+ $('#price').innerHTML=M.price>0?`<span>You would pay <b>${usd(M.price)}</b> for ${p.stake}%</span>`:'';
+ $('#cards').innerHTML=out.map(s=>{const a=at(s);return `<article class="card" style="--c:${s.c}"><h3>${s.name}</h3><div class="num">${usd(a.cum)}</div><div class="s">profit over ${N} month${N>1?'s':''}</div><dl><div><dt>Robux spent</dt><dd>${fmt(a.cr)}</dd></div><div><dt>Developer earnings</dt><dd>${usd(a.cd)}</dd></div><div><dt>Splits and costs</dt><dd>${usd(a.cd-a.cum)}</dd></div>${p.tax>0?`<div><dt>After tax</dt><dd>${usd(a.cum>0?a.cum*(1-p.tax/100):a.cum)}</dd></div>`:''}${p.stake>0?`<div><dt>Your ${p.stake}% share</dt><dd>${usd(a.cum*M.sh)}</dd></div>`:''}</dl></article>`}).join('');
+ chart(M);
+ $('#deal').style.display=M.price>0?'':'none';
+ if(M.price>0)$('#deal').innerHTML=verdict(M)+`<h2>Stake check</h2><div class="scroll"><table style="min-width:420px"><thead><tr><th>Scenario</th><th>Payback</th><th>Share after ${N} month${N>1?'s':''}</th><th>Return on ${usd(M.price)}</th></tr></thead><tbody>`+out.map(s=>{const sh12=s.rows[N-1].cum*M.sh;return `<tr><td style="color:${s.c};font-weight:600">${s.name}</td><td>${s.pay?'Month '+s.pay:'Beyond 12 months'}</td><td>${usd(sh12)}</td><td>${Math.round((sh12/M.price-1)*100)}%</td></tr>`}).join('')+`</tbody></table></div><p class="note" style="margin:10px 0 0">Share is your stake’s part of profit before tax. A return of 0% means you got your money back.</p>`;
+ const v=out.find(s=>s.k===view);
+ $('#tbl').innerHTML=`<thead><tr><th>Month</th><th>Players per day</th><th>Robux spent</th><th>Developer earnings</th><th>Splits and costs</th><th>Profit</th><th>Cumulative</th></tr></thead><tbody>`+v.rows.map(r=>`<tr class="${r.m>N?'off':''}"><td>${r.m}</td><td>${fmt(r.dau)}</td><td>${fmt(r.rb)}</td><td>${usd(r.dev)}</td><td>${usd(r.sp+r.cost)}</td><td>${usd(r.profit)}</td><td>${usd(r.cum)}</td></tr>`).join('')+`<tr class="tot"><td>First ${N}</td><td></td><td>${fmt(at(v).cr)}</td><td>${usd(at(v).cd)}</td><td>${usd(at(v).cd-at(v).cum)}</td><td>${usd(at(v).cum)}</td><td></td></tr></tbody>`;
+ try{const o={N};Object.keys(DEF).forEach(k=>o[k]=$('#'+k).value);localStorage.setItem('rrf2',JSON.stringify(o))}catch(e){}
+}
+build();
+document.addEventListener('input',e=>{if(e.target.matches('input')){hov=null;draw()}});
+document.addEventListener('click',e=>{const t=e.target;
+ if(t.dataset.m){N=+t.dataset.m;hov=null;draw()}
+ else if(t.dataset.v){view=t.dataset.v;draw()}
+ else if(t.dataset.r){$('#rate').value=t.dataset.r;draw()}
+ else if(t.id==='reset'){Object.keys(DEF).forEach(k=>$('#'+k).value=DEF[k]);N=6;hov=null;draw()}});
+draw();
+</script></body></html>
